@@ -51,35 +51,42 @@ def sum_elves(data: List[List[int]]) -> List[int]:
     return [sum(s) for s in data]
 
 
-def find_elf_carrying_most_calories(data: List[int]) -> Tuple[int, int]:
-    return data.index(max(data)), max(data)
+# def find_elf_carrying_most_calories(data: List[int]) -> Tuple[int, int]:
+#     return data.index(max(data)), max(data)
 
 
 def index_data(data: List[int]) -> List[Tuple[int, List[int]]]:
-    return [(j, s) for s in data]
+    return [(j, s) for j, s in enumerate(data)]
 
 
-def find_elf_carrying_most_calories2(data: Tuple[int, List[int]]) -> Tuple[int, int]:
-    sums = [(t[0], sum(t[1])) for t in data]
+def find_elf_carrying_most_calories2(data: List[Tuple[int, int]]) -> Tuple[int, int]:
     # sort by the sums
-    sorted_sums = sorted(sums, key=lambda x: x[1])
+    sorted_sums = sorted(data, key=lambda x: x[1])
     return sorted_sums[-1]
 
 
-def find_n_heaviest_elves(data: List[int], n: int = 1):
-    elves: List[Tuple[int, int]] = []
-    for j in range(n):
-        elves.append((idx_of_max, max_value))  # ???
+def find_n_heaviest_elves(
+    data: List[Tuple[int, int]], n: int = 1
+) -> List[Tuple[int, int]]:
+    sorted_sums = sorted(data, key=lambda x: x[1])
+    return sorted_sums[-n:]
 
 
 def main():
     data = read_data()
     sums = sum_elves(data)
-    idx, most_calories = find_elf_carrying_most_calories(sums)
+    indexed = index_data(sums)
+    idx, most_calories = find_elf_carrying_most_calories2(indexed)
 
     print(
         f"Most calories carried by elf is elf number {idx} with {most_calories} calories carried"
     )
+
+    heaviest_elves = find_n_heaviest_elves(indexed, 3)
+    for elf in heaviest_elves:
+        print(f"elf number {elf[0]} carrying {elf[1]} calories")
+
+    print(f"Total carried by top 3 elves is: {sum([x[1] for x in heaviest_elves])}")
 
 
 if __name__ == "__main__":
