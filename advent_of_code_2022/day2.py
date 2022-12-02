@@ -99,6 +99,54 @@ class Round:
         return winning_score + self.my_move.score
 
 
+class Round2:
+    def __init__(self, desired_outcome_encoded: str, opponent_move_encoded: str):
+        base_map = {
+            "rock": Rock,
+            "paper": Paper,
+            "scissors": Scissors,
+        }
+        opponent_moves = {
+            **base_map,
+            "A": Rock,
+            "B": Paper,
+            "C": Scissors,
+        }
+
+        self.opponent_move: Union[Rock, Paper, Scissors] = opponent_moves[
+            opponent_move_encoded
+        ]()
+
+        desired_winner_map = {"X": "opponent", "Y": "tie", "Z": "me"}
+
+        if desired_outcome_encoded == "X":
+            my_move = base_map[self.opponent_move.defeats]()
+        elif desired_outcome_encoded == "Y":
+            my_move = base_map[self.opponent_move.identity]()
+        elif desired_outcome_encoded == "Z":
+            my_move = base_map[self.opponent_move.is_defeated_by]()
+
+        self.my_move: Union[Rock, Paper, Scissors] = my_move
+
+        self.winning_score_map = {"me": 6, "tie": 3, "opponent": 0}
+
+    @property
+    def winner(self):
+        return self.who_won()
+
+    def who_won(self):
+        if self.my_move.identity == self.opponent_move.is_defeated_by:
+            return "me"
+        elif self.my_move.identity == self.opponent_move.identity:
+            return "tie"
+        else:
+            return "opponent"
+
+    def outcome_score(self):
+        winning_score = self.winning_score_map[self.who_won()]
+        return winning_score + self.my_move.score
+
+
 def who_won(my_move: str, opponent_move: str):
     """who_won.
     Takes either human-readable {rock, paper, scissors} or encrypted data
@@ -132,13 +180,19 @@ def main():
     # data = Path("./data/day2.sample").read_text().split("\n")
     data = Path("./data/day2.data").read_text().split("\n")
     score = 0
+    score2 = 0
     for round in data[:-1]:
         opponent_move, my_move = round.split(" ")
         r = Round(my_move, opponent_move)
         score += r.outcome_score()
-    return score
+
+        opponent_move, desired_outcome = round.split(" ")
+        r2 = Round2(desired_outcome, opponent_move)
+        score2 += r2.outcome_score()
+    return score, score2
 
 
 if __name__ == "__main__":
-    score = main()
+    score, score2 = main()
     print(score)
+    print(score2)
