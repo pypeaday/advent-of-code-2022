@@ -129,7 +129,8 @@ def who_won(my_move: str, opponent_move: str):
 
 
 def main():
-    data = Path("./data/day2.sample").read_text().split("\n")
+    # data = Path("./data/day2.sample").read_text().split("\n")
+    data = Path("./data/day2.data").read_text().split("\n")
     score = 0
     for round in data[:-1]:
         opponent_move, my_move = round.split(" ")
