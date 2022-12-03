@@ -33,6 +33,7 @@ compartments of each rucksack is 16 (p), 38 (L), 42 (P), 22 (v), 20 (t), and 19
 """
 
 import string
+from functools import reduce
 from pathlib import Path
 from typing import List
 
@@ -50,8 +51,8 @@ def split_rucksack(data: List[str]) -> List[List[str]]:
     return data[: len(data) // 2], data[len(data) // 2 :]
 
 
-def find_common_item(compartment1: List[str], compartment2: List[str]) -> str:
-    return list(set(compartment1).intersection(set(compartment2)))[0]
+def find_common_item(*args) -> str:
+    return list(reduce((lambda x, y: x.intersection(y)), [set(a) for a in args]))[0]
 
 
 def main1():
