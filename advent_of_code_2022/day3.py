@@ -37,6 +37,8 @@ from functools import reduce
 from pathlib import Path
 from typing import List
 
+from more_itertools import chunked
+
 VALUES = {letter: value + 1 for value, letter in enumerate(string.ascii_lowercase)}
 VALUES.update(
     {letter: value + 27 for value, letter in enumerate(string.ascii_uppercase)}
@@ -51,6 +53,11 @@ def split_rucksack(data: List[str]) -> List[List[str]]:
     return data[: len(data) // 2], data[len(data) // 2 :]
 
 
+def get_groups_of_n_elves(data: List[List[str]], n: int) -> List[str]:
+    for chunk in chunked(data, n):
+        yield chunk
+
+
 def find_common_item(*args) -> str:
     return list(reduce((lambda x, y: x.intersection(y)), [set(a) for a in args]))[0]
 
@@ -61,6 +68,17 @@ def main1():
     for rucksack in data:
         comp1, comp2 = split_rucksack(rucksack)
         v = find_common_item(comp1, comp2)
+        print(f"common item is {v}")
+        priority_sum += VALUES[v]
+    return priority_sum
+
+
+def main2():
+    data = read_data()
+    priority_sum = 0
+    group: List[str]
+    for group in get_groups_of_n_elves(data, n=3):
+        v = find_common_item(*group)
         print(f"common item is {v}")
         priority_sum += VALUES[v]
     return priority_sum
