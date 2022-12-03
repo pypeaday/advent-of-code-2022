@@ -68,7 +68,7 @@ def main1():
     for rucksack in data:
         comp1, comp2 = split_rucksack(rucksack)
         v = find_common_item(comp1, comp2)
-        print(f"common item is {v}")
+        # print(f"common item is {v}")
         priority_sum += VALUES[v]
     return priority_sum
 
@@ -79,6 +79,13 @@ def main2():
     group: List[str]
     for group in get_groups_of_n_elves(data, n=3):
         v = find_common_item(*group)
-        print(f"common item is {v}")
+        # print(f"common item is {v}")
         priority_sum += VALUES[v]
     return priority_sum
+
+
+if __name__ == "__main__":
+    s = main1()
+    print(f"Answer: {s}")
+    s2 = main2()
+    print(f"Answer: {s2}")
