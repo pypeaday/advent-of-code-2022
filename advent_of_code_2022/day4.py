@@ -68,6 +68,7 @@ def read_data() -> List[str]:
 def main():
     data = read_data()
     fully_contained = 0
+    overlap = 0
     for assignment_pair in data:
         range1, range2 = assignment_pair.split(",")
         sec1: set
@@ -76,9 +77,12 @@ def main():
         if sec1.issubset(sec2) or sec2.issubset(sec1):
             fully_contained += 1
 
-    return fully_contained
+        if not sec1.isdisjoint(sec2):
+            overlap += 1
+    return fully_contained, overlap
 
 
 if __name__ == "__main__":
-    answer = main()
+    answer, answer2 = main()
     print(f"{answer=}")
+    print(f"{answer2=}")
