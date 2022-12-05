@@ -66,7 +66,7 @@ STACK_WIDTH = 4  # number of spaces in ascii diagram per stack of crates
 
 
 def read_data():
-    crates, instructions = Path("./data/day5.sample").read_text().split("\n\n")
+    crates, instructions = Path("./data/day5.data").read_text().split("\n\n")
     return crates, instructions
 
 
@@ -88,12 +88,19 @@ def format_raw_crates(crates: str) -> Dict[int, List[str]]:
         )
     """
     stacks: Dict[int, List[str]] = defaultdict(list)
+
+    # TODO: get number of stacks
+    stack_ids = []
+    for x in crates.split("\n")[-1]:
+        try:
+            int(x)
+        except:
+            continue
+        stack_ids.append(int(x))
     # j is the height of the crate
     for j, row in enumerate(crates.split("\n")[::-1]):
         if j < 1:
             continue
-        # TODO: get number of stacks
-        stack_ids: List[int] = [1, 2, 3]
         for stack_id in stack_ids:
             row_index = 1 + (STACK_WIDTH * (stack_id - 1))
             if row[row_index] != " ":
@@ -103,10 +110,10 @@ def format_raw_crates(crates: str) -> Dict[int, List[str]]:
 
 
 def get_instruction(raw: str) -> Tuple[int, int, int]:
-    # only works for single-digit stacks, so if there's 10 this needs reworked
-    num_moves = int(raw[5])
-    source_stack = int(raw[12])
-    target_stack = int(raw[-1])
+    split_up = raw.split(" ")
+    num_moves = int(split_up[1])
+    source_stack = int(split_up[3])
+    target_stack = int(split_up[5])
     return num_moves, source_stack, target_stack
 
 
@@ -132,4 +139,4 @@ def main():
         stacks = do_instruction(stacks, raw_instruction)
 
     tops = [v[-1] for v in stacks.values()]
-    return tops
+    return "".join(tops)
