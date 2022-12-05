@@ -60,7 +60,7 @@ so you should combine these together and give the Elves the message CMZ.
 
 from collections import defaultdict
 from pathlib import Path
-from typing import Dict, List
+from typing import Dict, List, Tuple
 
 STACK_WIDTH = 4  # number of spaces in ascii diagram per stack of crates
 
@@ -96,6 +96,40 @@ def format_raw_crates(crates: str) -> Dict[int, List[str]]:
         stack_ids: List[int] = [1, 2, 3]
         for stack_id in stack_ids:
             row_index = 1 + (STACK_WIDTH * (stack_id - 1))
-            stacks[stack_id].append(row[row_index])
+            if row[row_index] != " ":
+                stacks[stack_id].append(row[row_index])
 
     return stacks
+
+
+def get_instruction(raw: str) -> Tuple[int, int, int]:
+    # only works for single-digit stacks, so if there's 10 this needs reworked
+    num_moves = int(raw[5])
+    source_stack = int(raw[12])
+    target_stack = int(raw[-1])
+    return num_moves, source_stack, target_stack
+
+
+def do_instruction(
+    stacks: Dict[int, List[str]], raw_instruction: str
+) -> Dict[int, List[str]]:
+    """do_instruction.
+    raw_instruction is one line of the instructions, not all fo them
+    """
+    num_moves, source_stack, target_stack = get_instruction(raw_instruction)
+    for n_moves in range(num_moves):
+        # TODO: side effect
+        crate = stacks[source_stack].pop()
+        print(f"Popped {crate} from {source_stack} and put on {target_stack}")
+        stacks[target_stack].append(crate)
+    return stacks
+
+
+def main():
+    raw_creates, raw_instructions = read_data()
+    stacks = format_raw_crates(raw_creates)
+    for raw_instruction in raw_instructions.split("\n")[:-1]:
+        stacks = do_instruction(stacks, raw_instruction)
+
+    tops = [v[-1] for v in stacks.values()]
+    return tops
