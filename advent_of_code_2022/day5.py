@@ -132,11 +132,34 @@ def do_instruction(
     return stacks
 
 
+def do_instruction_cratemover_9001(
+    stacks: Dict[int, List[str]], raw_instruction: str
+) -> Dict[int, List[str]]:
+    """do_instruction_cratemover_9001.
+    raw_instruction is one line of the instructions, not all fo them
+    """
+    num_crates, source_stack, target_stack = get_instruction(raw_instruction)
+    # TODO: side effect
+    crates = list(reversed([stacks[source_stack].pop() for _ in range(num_crates)]))
+    print(f"Popped {crates} from {source_stack} and put on {target_stack}")
+    stacks[target_stack].extend(crates)
+    return stacks
+
+
 def main():
     raw_creates, raw_instructions = read_data()
     stacks = format_raw_crates(raw_creates)
     for raw_instruction in raw_instructions.split("\n")[:-1]:
         stacks = do_instruction(stacks, raw_instruction)
 
+    tops = [v[-1] for v in stacks.values()]
+    return "".join(tops)
+
+
+def main2():
+    raw_creates, raw_instructions = read_data()
+    stacks = format_raw_crates(raw_creates)
+    for raw_instruction in raw_instructions.split("\n")[:-1]:
+        stacks = do_instruction_cratemover_9001(stacks, raw_instruction)
     tops = [v[-1] for v in stacks.values()]
     return "".join(tops)
