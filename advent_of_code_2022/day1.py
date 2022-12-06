@@ -43,19 +43,29 @@ from typing import List, Tuple
 
 
 def read_data() -> List[List[int]]:
+    """Summary of read_data."""
     data = Path("./data/day1.data").read_text().split("\n\n")
     return [[int(x) for x in s.split("\n") if x] for s in data]
 
 
 def sum_elves(data: List[List[int]]) -> List[int]:
+    """Summary of sum_elves.
+
+    Args:
+        data: Description of data.
+
+    Returns:
+        List[int]: Description of return value
+    """
     return [sum(s) for s in data]
 
 
-# def find_elf_carrying_most_calories(data: List[int]) -> Tuple[int, int]:
-#     return data.index(max(data)), max(data)
-
-
 def index_data(data: List[int]) -> List[Tuple[int, List[int]]]:
+    """Summary of index_data.
+
+    Args:
+        data: Description of data.
+    """
     return [(j, s) for j, s in enumerate(data)]
 
 
@@ -73,6 +83,7 @@ def find_n_heaviest_elves(
 
 
 def main():
+    """main."""
     data = read_data()
     sums = sum_elves(data)
     indexed = index_data(sums)
