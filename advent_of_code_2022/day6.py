@@ -57,11 +57,21 @@ def get_marker(s: str, n: int = 4):
             return j
 
 
+def get_start_of_packet_marker(s: str):
+    return get_marker(s, 4)
+
+
+def get_start_of_message_marker(s: str):
+    return get_marker(s, 14)
+
+
 def read_data():
     return Path("./data/day6.data").read_text()
 
 
 def main():
     s = read_data()
-    marker = get_marker(s)
-    print(f"{marker=}")
+    packet_marker = get_start_of_packet_marker(s)
+    print(f"{packet_marker=}")
+    message_marker = get_start_of_message_marker(s)
+    print(f"{message_marker=}")
