@@ -34,20 +34,6 @@ class Directory:
         return self.total_file_size() + self.total_child_directory_size()
 
 
-#     def total_size_of_children(self, total: int = 0):
-#         if not self.children:
-#             return total
-#         else:
-#             for child in self.children:
-#                 total += child.total_size_of_children(total)
-#             return total
-
-#     def total_size_with_children(self):
-#         total = self.total_size()
-#         children_total = self.total_size_of_children()
-#         return total + children_total
-
-
 class File:
     def __init__(self, name: str, size: int):
         self.name = name
@@ -56,39 +42,54 @@ class File:
 
 class Device:
     def __init__(self):
-        self.pwd = Directory("/")
-        self.directories: Dict[str, Directory] = {r"/": self.pwd}
+        self.pwd = None
+        self.directories: Dict[str, Directory] = {}
         self.old_pwd = None
+        self.initialized = False
 
     def cddotdot(self, s: str):
         if self.pwd.name == "/":
             print(f"at / already, but old_pwd was {self.old_pwd.name}")
-            return 0
-        print(f"changing directory from {self.pwd.name} to {self.pwd.parent.name}")
+            # return 0
+        print(f"changing directory from {self.pwd.name} to ..={self.pwd.parent.name}")
         self.old_pwd = self.pwd
         self.pwd = self.pwd.parent
         return 0
 
+    def get_directory_name(self, s: str):
+        """Need to keep full path in mind since directories with different
+        parents can have same names"""
+        return self.pwd.name + s.split(" ")[-1]
+
     def cd(self, s: str):
+
+        if s == "/" and not self.initialized:
+            self.directories["/"] = Directory("/")
+            self.pwd = self.directories.get("/")
+            self.pwd.parent = None
+            self.initialized = True
+            return 0
+        if s == "/":
+            directory_name = "/"
+        else:
+            directory_name = self.get_directory_name(s)
+
         if s[-2:] == "..":
             return self.cddotdot(s)
         else:
-            directory_name = s.split(" ")[-1]
             self.old_pwd = self.pwd
             self.pwd = self.directories.get(directory_name, Directory(directory_name))
             self.pwd.parent = (
                 self.old_pwd if self.pwd.parent is None else self.pwd.parent
             )
             self.old_pwd.children.update({self.pwd.name: self.pwd})
-            print(f"changing directory from {self.old_pwd.name} to {self.pwd.name}")
             return 0
-        breakpoint()
         return 1
 
     def ls(self, elements: List[str]):
         for element in elements:
             dtype = "directory" if element.split(" ")[0] == "dir" else "file"
-            name = element.split(" ")[1]
+            name = self.get_directory_name(element.split(" ")[1])
             if dtype == "directory":
                 if name not in [k for k in self.directories.keys()]:
                     self.directories[name] = Directory(name)
@@ -103,7 +104,7 @@ def setup_device():
 
     for cmd in get_commands():
         if "cd" in cmd.split("\n")[0]:
-            target = cmd.split("\n")[-1]
+            target = cmd.split(" ")[-1]
             device.cd(target)
         if "ls" in cmd.split("\n")[0]:
             output = cmd.split("\n")[1:]
@@ -121,3 +122,4 @@ def main():
             total += directory.total_contents_size()
 
     print(f"{total=}")
+    return device
