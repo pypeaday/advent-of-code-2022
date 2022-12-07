@@ -59,12 +59,12 @@ class Device:
         self.pwd = Directory("/")
         self.directories: Dict[str, Directory] = {r"/": self.pwd}
         self.old_pwd = None
-        self.cmd = "cd"
 
     def cddotdot(self, s: str):
         if self.pwd.name == "/":
-            print("at / already")
+            print(f"at / already, but old_pwd was {self.old_pwd.name}")
             return 0
+        print(f"changing directory from {self.pwd.name} to {self.pwd.parent.name}")
         self.old_pwd = self.pwd
         self.pwd = self.pwd.parent
         return 0
@@ -80,6 +80,7 @@ class Device:
                 self.old_pwd if self.pwd.parent is None else self.pwd.parent
             )
             self.old_pwd.children.update({self.pwd.name: self.pwd})
+            print(f"changing directory from {self.old_pwd.name} to {self.pwd.name}")
             return 0
         breakpoint()
         return 1
