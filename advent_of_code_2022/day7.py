@@ -8,7 +8,7 @@ from typing import Dict, List
 
 def get_commands() -> List[List[str]]:
     raw = Path("./data/day7.data").read_text()
-    raw = Path("./data/day7.sample").read_text()
+    # raw = Path("./data/day7.sample").read_text()
     commands = [x for x in raw.split("$") if x]
     return [c.strip() for c in commands]
 
@@ -69,10 +69,6 @@ class Device:
         return self.disk_space_available - self.disk_space_used
 
     def cddotdot(self, s: str):
-        if self.pwd.name == "/":
-            print(f"at / already, but old_pwd was {self.old_pwd.name}")
-            # return 0
-        print(f"changing directory from {self.pwd.name} to ..={self.pwd.parent.name}")
         self.old_pwd = self.pwd
         self.pwd = self.pwd.parent
         return 0
