@@ -56,8 +56,8 @@ class File:
 
 class Device:
     def __init__(self):
-        self.directories: Dict[str, Directory] = dict()
         self.pwd = Directory("/")
+        self.directories: Dict[str, Directory] = {r"/": self.pwd}
         self.old_pwd = None
         self.cmd = "cd"
 
