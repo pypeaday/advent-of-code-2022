@@ -7,8 +7,8 @@ from typing import Dict, List
 
 
 def get_commands() -> List[List[str]]:
-    # raw = Path("./data/day7.sample").read_text()
     raw = Path("./data/day7.data").read_text()
+    # raw = Path("./data/day7.sample").read_text()
     commands = [x for x in raw.split("$") if x]
     return [c.strip() for c in commands]
 
