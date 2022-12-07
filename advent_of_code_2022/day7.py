@@ -8,7 +8,7 @@ from typing import Dict, List
 
 def get_commands() -> List[List[str]]:
     raw = Path("./data/day7.data").read_text()
-    # raw = Path("./data/day7.sample").read_text()
+    raw = Path("./data/day7.sample").read_text()
     commands = [x for x in raw.split("$") if x]
     return [c.strip() for c in commands]
 
@@ -46,6 +46,27 @@ class Device:
         self.directories: Dict[str, Directory] = {}
         self.old_pwd = None
         self.initialized = False
+        self.disk_space_available = 70_000_000
+        self.disk_space_required = 30_000_000
+
+    @property
+    def disk_space_used(self):
+        total = 0
+        for directory in self.directories.values():
+            total += directory.total_contents_size()
+        return total
+
+    @property
+    def disk_space_used_by_directories_smaller_than_100_001(self):
+        total = 0
+        for directory in self.directories.values():
+            if directory.total_contents_size() <= 100_000:
+                total += directory.total_contents_size()
+        return total
+
+    @property
+    def disk_space_free(self):
+        return self.disk_space_available - self.disk_space_used
 
     def cddotdot(self, s: str):
         if self.pwd.name == "/":
@@ -115,11 +136,9 @@ def setup_device():
 
 def main():
     device = setup_device()
+    print(f"{device.disk_space_used_by_directories_smaller_than_100_001=}")
 
-    total = 0
-    for directory in device.directories.values():
-        if directory.total_contents_size() <= 100_000:
-            total += directory.total_contents_size()
-
-    print(f"{total=}")
-    return device
+    for directory in device.directories:
+        space_needed = device.disk_space_required - device.disk_space_used
+        if device.disk_space_available == directory:
+            ...
