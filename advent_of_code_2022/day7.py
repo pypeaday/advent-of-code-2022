@@ -8,24 +8,9 @@ from typing import Dict, List
 
 def get_commands() -> List[List[str]]:
     raw = Path("./data/day7.data").read_text()
-    raw = Path("./data/day7.sample").read_text()
+    # raw = Path("./data/day7.sample").read_text()
     commands = [x for x in raw.split("$") if x]
     return [c.strip() for c in commands]
-
-
-# class Node:
-#     def __init__(
-#         self, name: str, parent: Node, is_file: bool, size: Optional[int] = None
-#     ):
-#         self.name = name
-#         self.parent = parent
-#         self.is_file = is_file
-#         self.size = size
-#         self.children: List[Node] = []
-
-#     @property
-#     def is_root(self):
-#         return self.name == "/"
 
 
 class Directory:
@@ -163,8 +148,7 @@ def main():
 
     spaces = []
     directory: Direcctory
-    space_needed = device.disk_space_required - device.disk_space_used
-    # breakpoint()
+    space_needed = device.disk_space_required - device.disk_space_free
     for directory in device.directories.values():
         if directory.size >= space_needed:
             spaces.append(directory.size)
