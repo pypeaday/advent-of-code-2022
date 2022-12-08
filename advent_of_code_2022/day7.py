@@ -36,17 +36,16 @@ class Directory:
         self.children: Dict[str, Directory] = dict()
 
     @property
-    def contents(self):
-        return [*[f for f in self.files.values()], *[d for d in self.children.values()]]
+    def size(self):
+        return self.size_of_files + self.size_of_directories
 
-    def total_file_size(self):
-        return sum([file.size for file in self.files.values()])
+    @property
+    def size_of_files(self):
+        return sum([f.size for f in self.files.values()])
 
-    def total_child_directory_size(self):
-        return sum([d.total_file_size() for d in self.children.values()])
-
-    def total_contents_size(self):
-        return self.total_file_size() + self.total_child_directory_size()
+    @property
+    def size_of_directories(self):
+        return sum([d.size for d in self.children.values()])
 
 
 class File:
@@ -66,17 +65,14 @@ class Device:
 
     @property
     def disk_space_used(self):
-        total = 0
-        for directory in self.directories.values():
-            total += directory.total_contents_size()
-        return total
+        return self.directories["/"].size
 
     @property
     def disk_space_used_by_directories_smaller_than_100_001(self):
         total = 0
         for directory in self.directories.values():
-            if directory.total_contents_size() <= 100_000:
-                total += directory.total_contents_size()
+            if directory.size <= 100_000:
+                total += directory.size
         return total
 
     @property
@@ -165,7 +161,12 @@ def main():
     device = setup_device()
     print(f"{device.disk_space_used_by_directories_smaller_than_100_001=}")
 
-    for directory in device.directories:
-        space_needed = device.disk_space_required - device.disk_space_used
-        if device.disk_space_available == directory:
-            ...
+    spaces = []
+    directory: Direcctory
+    space_needed = device.disk_space_required - device.disk_space_used
+    # breakpoint()
+    for directory in device.directories.values():
+        if directory.size >= space_needed:
+            spaces.append(directory.size)
+    print(f"Smallest directory size = {min(spaces)}")
+    return device
