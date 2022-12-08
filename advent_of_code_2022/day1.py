@@ -49,14 +49,6 @@ def read_data() -> List[List[int]]:
 
 
 def sum_elves(data: List[List[int]]) -> List[int]:
-    """Summary of sum_elves.
-
-    Args:
-        data: Description of data.
-
-    Returns:
-        List[int]: Description of return value
-    """
     return [sum(s) for s in data]
 
 
@@ -78,6 +70,12 @@ def find_elf_carrying_most_calories2(data: List[Tuple[int, int]]) -> Tuple[int, 
 def find_n_heaviest_elves(
     data: List[Tuple[int, int]], n: int = 1
 ) -> List[Tuple[int, int]]:
+    """Summary of find_n_heaviest_elves.
+
+    Args:
+        data: Description of data.
+        n: Description of n. Default to 1
+    """
     sorted_sums = sorted(data, key=lambda x: x[1])
     return sorted_sums[-n:]
 
