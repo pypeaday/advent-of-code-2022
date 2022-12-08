@@ -8,9 +8,24 @@ from typing import Dict, List
 
 def get_commands() -> List[List[str]]:
     raw = Path("./data/day7.data").read_text()
-    # raw = Path("./data/day7.sample").read_text()
+    raw = Path("./data/day7.sample").read_text()
     commands = [x for x in raw.split("$") if x]
     return [c.strip() for c in commands]
+
+
+# class Node:
+#     def __init__(
+#         self, name: str, parent: Node, is_file: bool, size: Optional[int] = None
+#     ):
+#         self.name = name
+#         self.parent = parent
+#         self.is_file = is_file
+#         self.size = size
+#         self.children: List[Node] = []
+
+#     @property
+#     def is_root(self):
+#         return self.name == "/"
 
 
 class Directory:
@@ -73,16 +88,26 @@ class Device:
         self.pwd = self.pwd.parent
         return 0
 
+    def get_file_name(self, s: str):
+        """Need to keep full path in mind since directories with different
+        parents can have same names"""
+        if self.pwd.name == "/":
+            return "/" + s.split(" ")[-1]
+        return self.pwd.name + "/" + s.split(" ")[-1]
+
     def get_directory_name(self, s: str):
         """Need to keep full path in mind since directories with different
         parents can have same names"""
-        return self.pwd.name + s.split(" ")[-1]
+        if self.pwd.name == "/":
+            return "/" + s.split(" ")[-1]
+        return self.pwd.name + "/" + s.split(" ")[-1]
 
     def cd(self, s: str):
 
         if s == "/" and not self.initialized:
             self.directories["/"] = Directory("/")
             self.pwd = self.directories.get("/")
+            self.old_pwd = self.pwd
             self.pwd.parent = None
             self.initialized = True
             return 0
@@ -107,11 +132,12 @@ class Device:
         for element in elements:
             dtype = "directory" if element.split(" ")[0] == "dir" else "file"
             # TODO: I think this is broken for files where below I do File(name)... gotta look into this
-            name = self.get_directory_name(element.split(" ")[1])
             if dtype == "directory":
+                name = self.get_directory_name(element.split(" ")[1])
                 if name not in [k for k in self.directories.keys()]:
                     self.directories[name] = Directory(name)
             elif dtype == "file":
+                name = self.get_file_name(element.split(" ")[1])
                 size = int(element.split(" ")[0])
                 self.pwd.files.update({name: File(name, size)})
 
@@ -124,9 +150,13 @@ def setup_device():
         if "cd" in cmd.split("\n")[0]:
             target = cmd.split(" ")[-1]
             device.cd(target)
+            print(
+                f"cd-ing to {target} from {device.old_pwd.name}. Directory: {device.pwd.name} "
+            )
         if "ls" in cmd.split("\n")[0]:
             output = cmd.split("\n")[1:]
             device.ls(output)
+            print(f"ls {output=}")
 
     return device
 
