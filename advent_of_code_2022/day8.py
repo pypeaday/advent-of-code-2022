@@ -1,6 +1,8 @@
 """day8"""
 
 import logging
+from functools import reduce
+from operator import mul
 from pathlib import Path
 from typing import List, Tuple
 
@@ -45,13 +47,80 @@ def check_visibility_from_bottom(data: List[List[int]], row_id: int, col_id: int
     return False
 
 
+def check_visibility_to_left(data: List[List[int]], row_id: int, col_id: int):
+    tree_height = data[row_id][col_id]
+    trees = [data[row_id][k] for k in range(0, col_id)]
+    score = 0
+    for tree in trees[::-1]:
+        if tree < tree_height:
+            score += 1
+            continue
+        elif tree >= tree_height:
+            score += 1
+            return score
+    return score
+
+
+def check_visibility_to_right(data: List[List[int]], row_id: int, col_id: int):
+    tree_height = data[row_id][col_id]
+    trees = [data[row_id][k] for k in range(col_id + 1, len(data[row_id]))]
+    score = 0
+    for tree in trees:
+        if tree < tree_height:
+            score += 1
+            continue
+        elif tree >= tree_height:
+            score += 1
+            return score
+    return score
+
+
+def check_visibility_to_top(data: List[List[int]], row_id: int, col_id: int):
+    tree_height = data[row_id][col_id]
+    trees = [data[k][col_id] for k in range(0, row_id)]
+    score = 0
+    for tree in trees[::-1]:
+        if tree < tree_height:
+            score += 1
+            continue
+        elif tree >= tree_height:
+            score += 1
+            return score
+    return score
+
+
+def check_visibility_to_bottom(data: List[List[int]], row_id: int, col_id: int):
+    tree_height = data[row_id][col_id]
+    trees = [data[k][col_id] for k in range(row_id + 1, len(data))]
+    score = 0
+    for tree in trees:
+        if tree < tree_height:
+            score += 1
+            continue
+        elif tree >= tree_height:
+            score += 1
+            return score
+    return score
+
+
+def calculate_scenic_score(data: List[List[int]], row_id: int, col_id: int):
+    scores = [
+        check_visibility_to_top(data, row_id, col_id),
+        check_visibility_to_left(data, row_id, col_id),
+        check_visibility_to_bottom(data, row_id, col_id),
+        check_visibility_to_right(data, row_id, col_id),
+    ]
+    return reduce(mul, scores, 1)
+
+
 def main():
     data = get_data()
     # all outter trees are automatically visible
     trees_visible = 4 * (len(data) - 1)
-    logger.info(f"Trees visible around perimiter is {trees_visible}")
+    logger.debug(f"Trees visible around perimiter is {trees_visible}")
     tree_ids_visible: List[Tuple[int, int]] = []
     tree_ids_not_visible: List[Tuple[int, int]] = []
+    scores: List[int] = []
     for row_id, row in enumerate(data):
         for col_id, _ in enumerate(row):
             idx = (row_id, col_id)
@@ -86,7 +155,13 @@ def main():
                     tree_ids_visible.append(idx)
             else:
                 logger.debug(f"INVISIBLE INNER: {row_id=} and {col_id=}")
-                tree_ids_not_visible.append(idx)
+            tree_ids_not_visible.append(idx)
+
+            score = calculate_scenic_score(data, row_id, col_id)
+            logger.debug(f"{idx=} has score of {score=}")
+            scores.append(score)
     logger.info(f"{trees_visible=}")
     logger.debug(f"{tree_ids_visible=}")
     logger.debug(f"{tree_ids_not_visible=}")
+    logger.info(f"{max(scores)=}")
+    # logger.debug(f"{scores=}")
