@@ -112,7 +112,6 @@ class Device:
     def ls(self, elements: List[str]):
         for element in elements:
             dtype = "directory" if element.split(" ")[0] == "dir" else "file"
-            # TODO: I think this is broken for files where below I do File(name)... gotta look into this
             if dtype == "directory":
                 name = self.get_directory_name(element.split(" ")[1])
                 if name not in [k for k in self.directories.keys()]:
