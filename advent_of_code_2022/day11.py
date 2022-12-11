@@ -49,6 +49,7 @@ class Monkey:
         self.test_desc = self.__format_test(test)
         self.throw_if_true = self.__format_boolean_result(true_result)
         self.throw_if_false = self.__format_boolean_result(false_result)
+        self.inspect_count = 0
 
     def __repr__(self):
         return f"{self.__dict__}"
@@ -83,6 +84,7 @@ class Monkey:
         return f"new % {test.split(' ')[-1]}"
 
     def operation(self, item: Item):
+        self.inspect_count += 1
         v = eval(self.operation_desc, {"old": item.worry_level})
         item.worry_level = v
 
@@ -91,7 +93,8 @@ class Monkey:
 
 
 def get_data():
-    raw = Path("./data/day11.sample").read_text().split("\n\n")
+    raw = Path("./data/day11.data").read_text().split("\n\n")
+    # raw = Path("./data/day11.sample").read_text().split("\n\n")
     monkey_map: Dict[int, Monkey] = {}
     for _data in raw:
         data = _data.split("\n")
@@ -148,3 +151,15 @@ def do_round(monkey_map: Dict[int, Monkey]) -> Dict[int, Monkey]:
             )
             monkey_map[target_monkey].items.append(item)
     return monkey_map
+
+
+def main():
+    m = get_data()
+    for _ in range(20):
+        m = do_round(m)
+
+    active_monkeys = sorted(m.values(), key=lambda x: x.inspect_count)
+    most_active = active_monkeys[-2:]
+
+    monkey_business = most_active[0].inspect_count * most_active[1].inspect_count
+    return monkey_business
