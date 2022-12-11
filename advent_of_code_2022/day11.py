@@ -1,9 +1,27 @@
 """day 11"""
 
+import json
+import logging
 from pathlib import Path
 from typing import Dict, List
 
-from rich import print_json
+logging.basicConfig()
+logger = logging.getLogger(__name__)
+logger.setLevel("DEBUG")
+
+
+class Item:
+    def __init__(self, worry_level: int):
+        self.worry_level = worry_level
+
+    def adjust_worry_level(self):
+        self.worry_level = self.worry_level // 3
+
+    def __repr__(self):
+        return f"Item: {self.__dict__}"
+
+    def __str__(self):
+        return json.dumps(self, default=lambda o: o.__dict__)
 
 
 class Monkey:
@@ -26,15 +44,17 @@ class Monkey:
 
     def __init__(self, idx, items, operation, test, true_result, false_result):
         self.idx = idx
-        self.items = self.__format_items(items)
+        self.items: List[Item] = self.__format_items(items)
         self.operation_desc = self.__format_operation(operation)
         self.test_desc = self.__format_test(test)
         self.throw_if_true = self.__format_boolean_result(true_result)
         self.throw_if_false = self.__format_boolean_result(false_result)
 
     def __repr__(self):
-        print_json(data={k: v for k, v in self.__dict__.items()})
-        return f"Monkey # {self.idx}"
+        return f"{self.__dict__}"
+
+    def __str__(self):
+        return f"Monkey {self.idx}"
 
     def __format_boolean_result(self, cond: str):
         s, t = cond.split(" throw to monkey ")
@@ -46,7 +66,7 @@ class Monkey:
             return [79,98]
         """
         s, t = items.split(": ")
-        return [int(x) for x in t.split(", ")]
+        return [Item(int(x)) for x in t.split(", ")]
 
     def __format_operation(self, operation: str):
         """
@@ -61,13 +81,13 @@ class Monkey:
             return "new % 23"
         """
         return f"new % {test.split(' ')[-1]}"
-        ...
 
-    def operation(self, item: int):
-        return eval(self.operation_desc, {"new": item})
+    def operation(self, item: Item):
+        v = eval(self.operation_desc, {"old": item.worry_level})
+        item.worry_level = v
 
-    def test(self, item: int):
-        return eval(self.test_desc, {"new": item}) == 0
+    def test(self, item: Item):
+        return eval(self.test_desc, {"new": item.worry_level}) == 0
 
 
 def get_data():
@@ -90,3 +110,41 @@ def get_data():
             true_result=true_result,
             false_result=false_result,
         )
+
+    return monkey_map
+
+
+def do_round(monkey_map: Dict[int, Monkey]) -> Dict[int, Monkey]:
+    for k, monkey in monkey_map.items():
+        logger.debug(f"{monkey}")
+        # warning: passing by reference here... probably side effect city
+        # Monkey inspects item
+        import copy
+
+        items = copy.deepcopy(monkey.items)
+        for _item in items:
+            # pop left-most item from item list for current monkey and append
+            # it to target monkey's items after operations
+            item = monkey.items.pop(0)
+            # mutating monkey.items list while iterating I think messes up the loop
+            logger.debug(
+                f"monkey inspects an item with worry level of {item.worry_level}"
+            )
+            # Worry level is affected by operation
+            monkey.operation(item)
+            logger.debug(
+                f"worry level is affected by {monkey.operation_desc} and results in {item.worry_level}"
+            )
+            # Worry level of item is divided by 3
+            item.adjust_worry_level()
+            logger.debug(
+                f"monkey gets bored with item - worry level divided by 3 to {item.worry_level}"
+            )
+            target_monkey = (
+                monkey.throw_if_true if monkey.test(item) else monkey.throw_if_false
+            )
+            logger.debug(
+                f"item with worry level {item.worry_level} thrown to monkey {target_monkey}"
+            )
+            monkey_map[target_monkey].items.append(item)
+    return monkey_map
