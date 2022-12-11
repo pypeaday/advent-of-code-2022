@@ -1,5 +1,7 @@
 """day 11"""
 
+
+import copy
 import json
 import logging
 from pathlib import Path
@@ -120,10 +122,7 @@ def get_data():
 def do_round(monkey_map: Dict[int, Monkey]) -> Dict[int, Monkey]:
     for k, monkey in monkey_map.items():
         logger.debug(f"{monkey}")
-        # warning: passing by reference here... probably side effect city
         # Monkey inspects item
-        import copy
-
         items = copy.deepcopy(monkey.items)
         for _item in items:
             # pop left-most item from item list for current monkey and append
