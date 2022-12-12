@@ -19,7 +19,7 @@ class Item:
         self.worry_level = worry_level
 
     def adjust_worry_level(self, modulo: int = 3):
-        self.worry_level = self.worry_level // modulo
+        self.worry_level = self.worry_level % modulo
 
     def __repr__(self):
         return f"Item: {self.__dict__}"
@@ -99,7 +99,7 @@ class Monkey:
 
 def get_data():
     raw = Path("./data/day11.data").read_text().split("\n\n")
-    raw = Path("./data/day11.sample").read_text().split("\n\n")
+    # raw = Path("./data/day11.sample").read_text().split("\n\n")
     monkey_map: Dict[int, Monkey] = {}
     for _data in raw:
         data = _data.split("\n")
