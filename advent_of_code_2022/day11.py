@@ -3,13 +3,15 @@
 
 import json
 import logging
+from functools import reduce
 from pathlib import Path
 from typing import Dict, List, Optional
 
 from tqdm import tqdm
+
 logging.basicConfig()
 logger = logging.getLogger(__name__)
-logger.setLevel("DEBUG")
+logger.setLevel("WARNING")
 
 
 class Item:
@@ -83,7 +85,8 @@ class Monkey:
         ex: test = "Test: divisible by 23"
             return "new % 23"
         """
-        return f"new % {test.split(' ')[-1]}"
+        self.divisor = int(test.split(" ")[-1])
+        return f"new % {self.divisor}"
 
     def operation(self, item: Item):
         self.inspect_count += 1
@@ -131,7 +134,6 @@ def do_round(
             # pop left-most item from item list for current monkey and append
             # it to target monkey's items after operations
             item = monkey.items.pop(0)
-            # mutating monkey.items list while iterating I think messes up the loop
             logger.debug(
                 f"monkey inspects an item with worry level of {item.worry_level}"
             )
@@ -156,38 +158,34 @@ def do_round(
     return monkey_map
 
 
-def main():
+def main(n_rounds: int = 20, be_smart: bool = False):
     m = get_data()
-    for _ in range(20):
-        m = do_round(m)
 
-    active_monkeys = sorted(m.values(), key=lambda x: x.inspect_count)
-    most_active = active_monkeys[-2:]
-
-    monkey_business = most_active[0].inspect_count * most_active[1].inspect_count
-    return monkey_business
-
-
-def main2():
-    m = get_data()
-    from functools import reduce
-    from operator import mul
-
-    levels = [item.worry_level for monkey in m.values() for item in monkey.items]
-    manage_worry = reduce(lambda x, y: x * y, levels)
-    for _ in tqdm(range(10_000)):
+    if be_smart:
+        levels = [monkey.divisor for monkey in m.values()]
+        manage_worry = reduce(lambda x, y: x * y, levels)
+    else:
+        manage_worry = 3
+    for j in tqdm(range(n_rounds)):
         m = do_round(m, manage_worry)
+        if j == 0 or (j + 1) % 1000 == 0:
+            logger.warning(f"\n=== After round {j+1} ===")
+            for monkey in m.values():
+                logger.warning(
+                    f"Monkey {monkey.idx} inspected items {monkey.inspect_count} times"
+                )
 
     active_monkeys = sorted(m.values(), key=lambda x: x.inspect_count)
     most_active = active_monkeys[-2:]
 
     monkey_business = most_active[0].inspect_count * most_active[1].inspect_count
+    # breakpoint()
     return monkey_business
 
 
 if __name__ == "__main__":
-    ans = main()
+    ans = main(20)
     print(f"part 1 answer: {ans}")
 
-    ans2 = main2()
+    ans2 = main(10_000, True)
     print(f"part 2 answer: {ans2}")
