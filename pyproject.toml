@@ -39,6 +39,7 @@ dependencies = [
   "more-itertools",
   "pytest",
   "pytest-cov",
+  "tqdm",
 ]
 [tool.hatch.envs.default.scripts]
 cov = "pytest --cov-report=term-missing --cov-config=pyproject.toml --cov=advent_of_code_2022 --cov=tests {args}"

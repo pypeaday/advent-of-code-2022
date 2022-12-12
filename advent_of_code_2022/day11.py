@@ -1,23 +1,24 @@
 """day 11"""
 
 
-import copy
 import json
 import logging
 from pathlib import Path
-from typing import Dict, List
+from typing import Dict, List, Optional
+
+from tqdm import tqdm
 
 logging.basicConfig()
 logger = logging.getLogger(__name__)
-logger.setLevel("DEBUG")
+logger.setLevel("INFO")
 
 
 class Item:
     def __init__(self, worry_level: int):
         self.worry_level = worry_level
 
-    def adjust_worry_level(self):
-        self.worry_level = self.worry_level // 3
+    def adjust_worry_level(self, modulo: int = 3):
+        self.worry_level = self.worry_level // modulo
 
     def __repr__(self):
         return f"Item: {self.__dict__}"
@@ -119,12 +120,15 @@ def get_data():
     return monkey_map
 
 
-def do_round(monkey_map: Dict[int, Monkey]) -> Dict[int, Monkey]:
+def do_round(
+    monkey_map: Dict[int, Monkey], manage_worry: Optional[int] = 3
+) -> Dict[int, Monkey]:
     for k, monkey in monkey_map.items():
         logger.debug(f"{monkey}")
         # Monkey inspects item
-        items = copy.deepcopy(monkey.items)
-        for _item in items:
+        # items = copy.deepcopy(monkey.items)
+        num_items = list(range(len(monkey.items)))
+        for _ in num_items:
             # pop left-most item from item list for current monkey and append
             # it to target monkey's items after operations
             item = monkey.items.pop(0)
@@ -137,11 +141,12 @@ def do_round(monkey_map: Dict[int, Monkey]) -> Dict[int, Monkey]:
             logger.debug(
                 f"worry level is affected by {monkey.operation_desc} and results in {item.worry_level}"
             )
-            # Worry level of item is divided by 3
-            item.adjust_worry_level()
-            logger.debug(
-                f"monkey gets bored with item - worry level divided by 3 to {item.worry_level}"
-            )
+            # Worry level of item is divided by 3 by default
+            if manage_worry:
+                item.adjust_worry_level(manage_worry)
+                logger.debug(
+                    f"monkey gets bored with item - worry level divided by 3 to {item.worry_level}"
+                )
             target_monkey = (
                 monkey.throw_if_true if monkey.test(item) else monkey.throw_if_false
             )
@@ -162,3 +167,28 @@ def main():
 
     monkey_business = most_active[0].inspect_count * most_active[1].inspect_count
     return monkey_business
+
+
+def main2():
+    m = get_data()
+    from functools import reduce
+    from operator import mul
+
+    levels = [item.worry_level for monkey in m.values() for item in monkey.items]
+    manage_worry = reduce(lambda x, y: x * y, levels)
+    for _ in tqdm(range(10_000)):
+        m = do_round(m, manage_worry)
+
+    active_monkeys = sorted(m.values(), key=lambda x: x.inspect_count)
+    most_active = active_monkeys[-2:]
+
+    monkey_business = most_active[0].inspect_count * most_active[1].inspect_count
+    return monkey_business
+
+
+if __name__ == "__main__":
+    ans = main()
+    print(f"part 1 answer: {ans}")
+
+    ans2 = main2()
+    print(f"part 2 answer: {ans2}")
