@@ -7,10 +7,9 @@ from pathlib import Path
 from typing import Dict, List, Optional
 
 from tqdm import tqdm
-
 logging.basicConfig()
 logger = logging.getLogger(__name__)
-logger.setLevel("INFO")
+logger.setLevel("DEBUG")
 
 
 class Item:
@@ -97,7 +96,7 @@ class Monkey:
 
 def get_data():
     raw = Path("./data/day11.data").read_text().split("\n\n")
-    # raw = Path("./data/day11.sample").read_text().split("\n\n")
+    raw = Path("./data/day11.sample").read_text().split("\n\n")
     monkey_map: Dict[int, Monkey] = {}
     for _data in raw:
         data = _data.split("\n")
